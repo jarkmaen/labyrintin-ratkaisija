@@ -2,7 +2,7 @@
 Aikaa käytetty: 4 tuntia
 
 ## Tehty
-Aihe valittu, projekti luotu, repositio luotu, dokumentaatio aloitettu
+Aihe valittu, projekti luotu, repository luotu, dokumentaatio aloitettu
 
 ## Seuraavaksi
 Käyttöliittymä alkuun ja labyrintin generointi
