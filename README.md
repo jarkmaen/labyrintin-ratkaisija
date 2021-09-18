@@ -26,6 +26,8 @@ Suoritettavan jarin generointi
 mvn package
 ```
 
+Luotu jar-tiedosto löytyy hakemistosta _target_ nimellä _MazeSolver-1.0-SNAPSHOT.jar_
+
 ### Testaus
 
 Testit suoritetaan komennolla
