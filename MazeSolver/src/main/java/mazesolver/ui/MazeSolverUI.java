@@ -23,6 +23,9 @@ import mazesolver.logic.Maze;
 import mazesolver.util.List;
 import mazesolver.util.Pair;
 
+/**
+ * Ohjelman käyttöliittymästä vastaava luokka
+ */
 public class MazeSolverUI extends Application {
 
     private List<Pair<Integer, Integer>> polku;

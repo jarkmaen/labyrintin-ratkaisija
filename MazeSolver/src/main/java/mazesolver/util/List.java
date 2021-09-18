@@ -1,5 +1,9 @@
 package mazesolver.util;
 
+/**
+ * Listarakenne
+ * @param <E> E - Tyyppiparametri
+ */
 public class List<E> {
     
     private Object[] alkiot;

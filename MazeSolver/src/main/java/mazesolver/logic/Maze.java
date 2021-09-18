@@ -5,6 +5,9 @@ import java.util.Stack;
 import mazesolver.util.List;
 import mazesolver.util.Pair;
 
+/**
+ * Labyrintin logiikasta vastaava luokka
+ */
 public class Maze {
 
     private List<Pair<Integer, Integer>> polku;
@@ -15,6 +18,9 @@ public class Maze {
         luoLabyrintti();
     }
 
+    /**
+     * Generoi labyrintin käyttäen satunnaistettua syvyyshaku algoritmia
+     */
     private void luoLabyrintti() {
         Stack<Pair<Integer, Integer>> pino = new Stack<>();
         boolean[][] visited = new boolean[n][n];

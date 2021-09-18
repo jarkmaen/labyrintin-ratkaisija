@@ -1,5 +1,10 @@
 package mazesolver.util;
 
+/**
+ * Parirakenne
+ * @param <K> K - Tyyppiparametri
+ * @param <V> V - Tyyppiparametri
+ */
 public class Pair<K, V> {
 
     private K avain;
