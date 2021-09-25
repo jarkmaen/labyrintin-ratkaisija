@@ -20,6 +20,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import mazesolver.logic.Maze;
+import mazesolver.logic.WallFollower;
 import mazesolver.util.List;
 import mazesolver.util.Pair;
 
@@ -41,6 +42,10 @@ public class MazeSolverUI extends Application {
         
         Maze labyrintti = new Maze(labyrintinKoko);
         polku = labyrintti.haePolku();
+        
+        WallFollower wallFollower = new WallFollower(labyrintti.haeVerkko(), labyrintinKoko);
+        wallFollower.ratkaise();
+        System.out.println(wallFollower.tulostaReitti());
         
         HBox pohja = new HBox();
         pohja.getChildren().addAll(luoOhjauspaaneli(), luoRuudukko(labyrintinKoko, ruudunKoko));
