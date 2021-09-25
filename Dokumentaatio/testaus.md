@@ -18,4 +18,4 @@ Raportin tulos löytyy _target/site/jacoco/_ -hakemistosta nimellä _index.html_
 
 ## Testikattavuus
 
-<img src="https://raw.githubusercontent.com/jarkmaen/labyrintin-ratkaisija/master/Dokumentaatio/Kuvat/testikattavuus.PNG">
+<img src="https://raw.githubusercontent.com/jarkmaen/labyrintin-ratkaisija/master/Dokumentaatio/Kuvat/Testikattavuus.PNG">
