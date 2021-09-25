@@ -4,11 +4,15 @@
 
 [Määrittely](https://github.com/jarkmaen/maze-solver/blob/master/Dokumentaatio/maarittely.md)
 
+[Testaus](https://github.com/jarkmaen/maze-solver/blob/master/Dokumentaatio/testaus.md)
+
 ## Raportit
 
 [Viikko 1](https://github.com/jarkmaen/maze-solver/blob/master/Dokumentaatio/viikkoraportti1.md)
 
 [Viikko 2](https://github.com/jarkmaen/maze-solver/blob/master/Dokumentaatio/viikkoraportti2.md)
+
+[Viikko 3](https://github.com/jarkmaen/maze-solver/blob/master/Dokumentaatio/viikkoraportti3.md)
 
 ## Komentorivitoiminnot
 
@@ -28,22 +32,6 @@ mvn package
 
 Luotu jar-tiedosto löytyy hakemistosta _target_ nimellä _MazeSolver-1.0-SNAPSHOT.jar_
 
-### Testaus
-
-Testit suoritetaan komennolla
-
-```
-mvn test
-```
-
-Jacoco testikattavuusraportti luodaan komennolla
-
-```
-mvn jacoco:report
-```
-
-Raportin tulos löytyy _target/site/jacoco/_ -hakemistosta nimellä _index.html_
-
 ### JavaDoc
 
 JavaDoc luodaan komennolla
@@ -53,3 +41,13 @@ mvn javadoc:javadoc
 ```
 
 Raportin tulos löytyy _target/site/apidocs/_ -hakemistosta nimellä _index.html_
+
+### Checkstyle
+
+Checkstyle tarkistus suoritetaan komennolla
+
+```
+mvn jxr:jxr checkstyle:checkstyle
+```
+
+Raportin tulos löytyy _target/site/_ -hakemistosta nimellä _checkstyle.html_
