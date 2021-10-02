@@ -9,7 +9,7 @@ public class DeadEndFilling {
 
     private List<List<Integer>> verkko;
     private List<Integer> polku;
-    private boolean suljettu[];
+    boolean suljettu[];
     private int n;
 
     public DeadEndFilling(List<List<Integer>> verkko, int n) {
