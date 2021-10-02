@@ -6,6 +6,8 @@
 
 [Testaus](https://github.com/jarkmaen/maze-solver/blob/master/Dokumentaatio/testaus.md)
 
+[Toteutus](https://github.com/jarkmaen/maze-solver/blob/master/Dokumentaatio/toteutus.md)
+
 ## Raportit
 
 [Viikko 1](https://github.com/jarkmaen/maze-solver/blob/master/Dokumentaatio/viikkoraportti1.md)
@@ -13,6 +15,8 @@
 [Viikko 2](https://github.com/jarkmaen/maze-solver/blob/master/Dokumentaatio/viikkoraportti2.md)
 
 [Viikko 3](https://github.com/jarkmaen/maze-solver/blob/master/Dokumentaatio/viikkoraportti3.md)
+
+[Viikko 4](https://github.com/jarkmaen/maze-solver/blob/master/Dokumentaatio/viikkoraportti4.md)
 
 ## Komentorivitoiminnot
 
