@@ -3,12 +3,12 @@ package mazesolver.logic;
 import mazesolver.util.List;
 
 /**
- * Wall Follower algoritmi
+ * Wall follower algoritmi
  */
 public class WallFollower {
 
     private List<List<Integer>> verkko;
-    private List<Integer> reitti;
+    private List<Integer> polku;
     private int n;
 
     public WallFollower(List<List<Integer>> verkko, int n) {
@@ -16,19 +16,23 @@ public class WallFollower {
         this.n = n;
     }
 
+    // Käytetään vasemman käden sääntöä, eli käännytään aina vasemalle
+    // suunnasta riippuen
     public void ratkaise() {
-        reitti = new List<>();
+        polku = new List<>();
         int solmu = 0;
         int edellinenSolmu = 0;
         String suunta = "I";
         
+        // Liikutaan labyrintissä eteenpäin kunnes päädytään maali solmuun
         while (solmu != n * n - 1) {
-            reitti.lisaa(solmu);
+            polku.lisaa(solmu);
             int solmunVanhaSijainti = solmu;
             boolean b1 = false;
             boolean b2 = false;
             boolean b3 = false;
             
+            // P = Pohjoinen, I = Itä, E = Etelä, L = Länsi
             if (suunta.equals("P")) {
                 for (int i = 0; i < verkko.hae(solmu).koko(); i++) {
                     int naapuri = verkko.hae(solmu).hae(i);
@@ -79,9 +83,12 @@ public class WallFollower {
             edellinenSolmu = solmunVanhaSijainti;
         }
         
-        reitti.lisaa(solmu);
+        polku.lisaa(solmu);
     }
 
+    /**
+     * Selvitetään orientaatio nykyisen ja seuraavan solmun sijainnin perusteella
+     */
     private String suunta(int nykyinenSolmu, int seuraavaSolmu) {
         String suunta = "";
 
@@ -102,9 +109,7 @@ public class WallFollower {
         return suunta;
     }
     
-    public String tulostaReitti() {
-        String liikkeet = "";
-        for (int i = 0; i < reitti.koko(); i++) liikkeet = liikkeet + "" + reitti.hae(i) + " > ";
-        return liikkeet;
+    public List<Integer> haePolku() {
+        return this.polku;
     }
 }

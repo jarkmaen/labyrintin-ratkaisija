@@ -16,13 +16,12 @@ public class Maze {
 
     public Maze(int n) {
         this.n = n;
-        luoLabyrintti();
     }
 
     /**
      * Generoi labyrintin käyttäen satunnaistettua syvyyshaku algoritmia
      */
-    private void luoLabyrintti() {
+    public void luoLabyrintti() {
         Stack<Pair<Integer, Integer>> pino = new Stack<>();
         boolean[][] visited = new boolean[n][n];
         Random random = new Random();
@@ -33,6 +32,7 @@ public class Maze {
         int edellinenSolmu;
         int nykyinenSolmu = 0;
 
+        // Valitaan satunnaisesti aloitus kohta
         int r1 = random.nextInt(n);
         int r2 = random.nextInt(n);
         pino.lisays(new Pair<>(r1, r2));
@@ -44,6 +44,7 @@ public class Maze {
             int y = pino.kurkistus().haeArvo();
             pino.poisto();
 
+            // P = Pohjoinen, I = Itä, E = Etelä, L = Länsi
             if (y != 0 && !visited[x][y - 1]) suunnat.lisaa("P");
             if (x + 1 != n && !visited[x + 1][y]) suunnat.lisaa("I");
             if (y + 1 != n && !visited[x][y + 1]) suunnat.lisaa("E");
