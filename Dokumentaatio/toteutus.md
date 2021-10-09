@@ -6,7 +6,7 @@
 
 - `mazesolver.logic` - sisältää sovelluslogiikan ja algoritmit
 - `mazesolver.ui` - sisältää käyttöliittymään liittyvät luokat
-- `mazesolver.util` - sisältää tarvittavat tietorakenteet
+- `mazesolver.util` - sisältää tarvittavat tietorakenteet ja muut apuvälineet
 
 ### Logic
 
@@ -22,6 +22,8 @@
 
 - List: Yksinkertainen lista tietorakenne
 - Pair: Yksinkertainen pari tietorakenne
+- PerformanceTest: Suorittaa suorituskykytestit
+- RandomNumberGenerator: Yksinkertainen satunnaislukugeneraattori
 - Stack: Dynaaminen pino tietorakenne
 
 ### Muut

@@ -18,6 +18,8 @@
 
 [Viikko 4](https://github.com/jarkmaen/maze-solver/blob/master/Dokumentaatio/viikkoraportti4.md)
 
+[Viikko 5](https://github.com/jarkmaen/maze-solver/blob/master/Dokumentaatio/viikkoraportti5.md)
+
 ## Komentorivitoiminnot
 
 ### Ohjelman suorittaminen
