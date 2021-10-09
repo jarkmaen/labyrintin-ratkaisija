@@ -55,19 +55,16 @@ public class Maze {
                 int r = rng.generoi(suunnat.koko());
                 String suunta = suunnat.hae(r);
 
-                if (suunta.equals("P")) {
-                    visited[x][y - 1] = true;
-                    pino.lisays(new Pair<>(x, y - 1));
-                } else if (suunta.equals("I")) {
-                    visited[x + 1][y] = true;
-                    pino.lisays(new Pair<>(x + 1, y));
-                } else if (suunta.equals("E")) {
-                    visited[x][y + 1] = true;
-                    pino.lisays(new Pair<>(x, y + 1));
-                } else if (suunta.equals("L")) {
-                    visited[x - 1][y] = true;
-                    pino.lisays(new Pair<>(x - 1, y));
-                }
+                int sX = 0;
+                int sY = 0;
+                
+                if (suunta.equals("P")) sY = -1;
+                else if (suunta.equals("I")) sX = 1;
+                else if (suunta.equals("E")) sY = 1;
+                else if (suunta.equals("L")) sX = -1;
+                
+                visited[x + sX][y + sY] = true;
+                pino.lisays(new Pair<>(x + sX, y + sY));
             }
 
             edellinenSolmu = nykyinenSolmu;

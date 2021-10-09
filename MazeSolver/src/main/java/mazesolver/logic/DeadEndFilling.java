@@ -41,43 +41,23 @@ public class DeadEndFilling {
             // seuraava vapaa solmu on aloitus/maali solmu
             while (true) {
                 if (solmu == 0 || solmu == maali || suljettu[solmu]) break;
-                
+
                 int suljettujaNaapureita = laskeSuljetutNaapurit(solmu);
+                int koko = verkko.hae(solmu).koko();
                 
-                // Tarkastetaan tilanteet jossa solmulla on 2 naapuria
-                if (verkko.hae(solmu).koko() == 2) {
-                    if (suljettujaNaapureita == 1) {
-                        int seuraavaSolmu = etsiSeuraavaSolmu(solmu);
-                        solmu = seuraavaSolmu;
-                    } else if (suljettujaNaapureita == 2) {
-                        suljettu[solmu] = true;
-                        polku.lisaa(solmu);
-                        break;
-                    }
-                } // Tarkastetaan tilanteet jossa solmulla on 3 naapuria
-                else if (verkko.hae(solmu).koko() == 3) {
-                    if (suljettujaNaapureita == 1) {
-                        break;
-                    } else if (suljettujaNaapureita == 2) {
-                        int seuraavaSolmu = etsiSeuraavaSolmu(solmu);
-                        solmu = seuraavaSolmu;
-                    } else if (suljettujaNaapureita == 3) {
-                        suljettu[solmu] = true;
-                        polku.lisaa(solmu);
-                        break;
-                    }
-                } // Tarkastetaan tilanteet jossa solmulla on 4 naapuria
-                else if (verkko.hae(solmu).koko() == 4) {
-                    if (suljettujaNaapureita == 1 || suljettujaNaapureita == 2) {
-                        break;
-                    } else if (suljettujaNaapureita == 3) {
-                        int seuraavaSolmu = etsiSeuraavaSolmu(solmu);
-                        solmu = seuraavaSolmu;
-                    } else if (suljettujaNaapureita == 4) {
-                        suljettu[solmu] = true;
-                        polku.lisaa(solmu);
-                        break;
-                    }
+                if (koko - suljettujaNaapureita == 0) {
+                    suljettu[solmu] = true;
+                    polku.lisaa(solmu);
+                    break;
+                }
+                
+                if (koko - suljettujaNaapureita == 1) {
+                    int seuraavaSolmu = etsiSeuraavaSolmu(solmu);
+                    solmu = seuraavaSolmu;
+                }
+                
+                if (koko - suljettujaNaapureita > 1) {
+                    break;
                 }
             }
         }
