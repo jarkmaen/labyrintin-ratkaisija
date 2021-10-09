@@ -1,8 +1,8 @@
 package mazesolver.logic;
 
-import java.util.Random;
 import mazesolver.util.List;
 import mazesolver.util.Pair;
+import mazesolver.util.RandomNumberGenerator;
 import mazesolver.util.Stack;
 
 /**
@@ -22,9 +22,9 @@ public class Maze {
      * Generoi labyrintin käyttäen satunnaistettua syvyyshaku algoritmia
      */
     public void luoLabyrintti() {
+        RandomNumberGenerator rng = new RandomNumberGenerator();
         Stack<Pair<Integer, Integer>> pino = new Stack<>();
         boolean[][] visited = new boolean[n][n];
-        Random random = new Random();
         polku = new List<>();
 
         verkko = new List<>();
@@ -33,8 +33,8 @@ public class Maze {
         int nykyinenSolmu = 0;
 
         // Valitaan satunnaisesti aloitus kohta
-        int r1 = random.nextInt(n);
-        int r2 = random.nextInt(n);
+        int r1 = rng.generoi(n);
+        int r2 = rng.generoi(n);
         pino.lisays(new Pair<>(r1, r2));
         visited[r1][r2] = true;
 
@@ -52,7 +52,7 @@ public class Maze {
 
             if (suunnat.koko() != 0) {
                 pino.lisays(new Pair<>(x, y));
-                int r = random.nextInt(suunnat.koko());
+                int r = rng.generoi(suunnat.koko());
                 String suunta = suunnat.hae(r);
 
                 if (suunta.equals("P")) {

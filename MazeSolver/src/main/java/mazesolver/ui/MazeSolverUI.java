@@ -77,15 +77,15 @@ public class MazeSolverUI extends Application {
         pudotusvalikko.getItems().add("75x75");
         pudotusvalikko.getItems().add("100x100");
         pudotusvalikko.valueProperty().addListener((observable) -> {
-            int index = pudotusvalikko.getSelectionModel().getSelectedIndex();
-            if (index == 0) ikkuna.setScene(new Scene(luoPaanakyma(5, 100)));
-            else if (index == 1) ikkuna.setScene(new Scene(luoPaanakyma(10, 58)));
-            else if (index == 2) ikkuna.setScene(new Scene(luoPaanakyma(20, 32)));
-            else if (index == 3) ikkuna.setScene(new Scene(luoPaanakyma(30, 22)));
-            else if (index == 4) ikkuna.setScene(new Scene(luoPaanakyma(40, 17)));
-            else if (index == 5) ikkuna.setScene(new Scene(luoPaanakyma(50, 18)));
-            else if (index == 6) ikkuna.setScene(new Scene(luoPaanakyma(75, 12)));
-            else if (index == 7) ikkuna.setScene(new Scene(luoPaanakyma(100, 9)));
+            int indeksi = pudotusvalikko.getSelectionModel().getSelectedIndex();
+            if (indeksi == 0) ikkuna.setScene(new Scene(luoPaanakyma(5, 100)));
+            else if (indeksi == 1) ikkuna.setScene(new Scene(luoPaanakyma(10, 58)));
+            else if (indeksi == 2) ikkuna.setScene(new Scene(luoPaanakyma(20, 32)));
+            else if (indeksi == 3) ikkuna.setScene(new Scene(luoPaanakyma(30, 22)));
+            else if (indeksi == 4) ikkuna.setScene(new Scene(luoPaanakyma(40, 17)));
+            else if (indeksi == 5) ikkuna.setScene(new Scene(luoPaanakyma(50, 18)));
+            else if (indeksi == 6) ikkuna.setScene(new Scene(luoPaanakyma(75, 12)));
+            else if (indeksi == 7) ikkuna.setScene(new Scene(luoPaanakyma(100, 9)));
         });
 
         CheckBox labyrinttiValintaruutu = new CheckBox("Animoi generointi");
