@@ -30,6 +30,7 @@ import mazesolver.logic.Maze;
 import mazesolver.logic.WallFollower;
 import mazesolver.util.List;
 import mazesolver.util.Pair;
+import mazesolver.util.PerformanceTest;
 
 /**
  * Ohjelman käyttöliittymästä vastaava luokka
@@ -145,12 +146,21 @@ public class MazeSolverUI extends Application {
             }
         });
         
-        Button suorituskykytestiNappi = new Button("Suorituskykytesti");
-        suorituskykytestiNappi.setPrefWidth(140);
-        
         TextArea tuloste = new TextArea();
         tuloste.setStyle("-fx-faint-focus-color: transparent; -fx-focus-color: transparent");
         tuloste.setEditable(false);
+        
+        Button suorituskykytestiNappi = new Button("Suorituskykytesti");
+        suorituskykytestiNappi.setPrefWidth(140);
+        suorituskykytestiNappi.setOnAction(value -> {
+            PerformanceTest suorityskykytesti = new PerformanceTest();
+            String tulos = "Aloitetaan testi.\n\n";
+            tulos = tulos + suorityskykytesti.wallFollowerTehokkuustesti();
+            tulos = tulos + "\n";
+            tulos = tulos + suorityskykytesti.deadEndFillingTehokkuustesti();
+            tulos = tulos + "\nTesti suoritettu!";
+            tuloste.setText(tulos);
+        });
 
         ohjauspaneeli.getChildren().addAll(labyrintinKokoTeksti, pudotusvalikko, luoLabyrinttiNappi, labyrinttiValintaruutu, 
                 erotin1, wallFollowerNappi, deadEndFillingNappi, algoritmiValintaruutu, 
