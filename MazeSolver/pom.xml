@@ -43,6 +43,7 @@
                 <configuration>
                     <excludes>
                         <exclude>mazesolver/ui/*</exclude>
+                        <exclude>**/*/*PerformanceTest.*</exclude>
                     </excludes>
                 </configuration>
                 <executions>

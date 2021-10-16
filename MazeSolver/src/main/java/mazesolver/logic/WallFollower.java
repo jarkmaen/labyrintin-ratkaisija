@@ -89,7 +89,7 @@ public class WallFollower {
     /**
      * Selvitetään orientaatio nykyisen ja seuraavan solmun sijainnin perusteella
      */
-    private String suunta(int nykyinenSolmu, int seuraavaSolmu) {
+    public String suunta(int nykyinenSolmu, int seuraavaSolmu) {
         String suunta = "";
 
         if (nykyinenSolmu > seuraavaSolmu) {

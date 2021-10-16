@@ -24,4 +24,15 @@ public class WallFollowerTest {
         List<Integer> polku = wallFollower.haePolku();
         assertTrue(polku.hae(polku.koko() - 1) == n * n - 1);
     }
+    
+    @Test
+    public void suuntaPalauttaaOikeatSuunnat() {
+        WallFollower wallFollower = new WallFollower(labyrintti.haeVerkko(), n);
+        boolean p = false, i = false, e = false, l = false;
+        if (wallFollower.suunta(4, 1).equals("P")) p = true;
+        if (wallFollower.suunta(4, 5).equals("I")) i = true;
+        if (wallFollower.suunta(4, 7).equals("E")) e = true;
+        if (wallFollower.suunta(4, 3).equals("L")) l = true;
+        assertTrue(p && i && e && l);
+    }
 }
