@@ -31,4 +31,6 @@ Labyrintit generoidaan valmiiksi ennen algoritmien suorittamista
 
 ## Testikattavuus
 
+Käyttöliittymä ja tehokkuustesti luokat ovat jätetty pois testeistä
+
 <img src="https://raw.githubusercontent.com/jarkmaen/labyrintin-ratkaisija/master/Dokumentaatio/kuvat/testikattavuus.PNG">
