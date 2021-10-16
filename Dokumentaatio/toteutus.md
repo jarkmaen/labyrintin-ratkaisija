@@ -31,8 +31,15 @@
 - Main: Ohjelman pääluokka mikä käynnistää käyttöliittymän
 - Test: Sisältää sovelluksen testaamiseen käytettävät luokat
 
-## Suorituskyky- ja O-analyysivertailu
+## Saavutetut aika- ja tilavaativuudet
 
-## Puutteet ja parannusehdotukset
+- Wall follower
+  - Aikavaativuus: O(n)
+  - Tilavaativuus: O(1)
+- Dead-end filling
+  - Aikavaativuus: O(n)
+  - Tilavaativuus: O(n)
 
 ## Lähteet
+
+- https://en.wikipedia.org/wiki/Maze-solving_algorithm
