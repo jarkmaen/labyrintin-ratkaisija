@@ -22,6 +22,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -48,14 +49,30 @@ public class MazeSolverUI extends Application {
     private WallFollower wallFollower;
     private DeadEndFilling deadEndFilling;
 
+    private Rectangle aloitusSeina;
+    private Rectangle maaliSeina;
+    
     private int labyrintinKoko;
+    private int ruudunKoko;
     private int kierros;
 
-    private Parent luoPaanakyma(int n, int ruudunKoko) {
-        labyrintinKoko = n;
+    private Parent luoPaanakyma(int labyrintinKoko, int ruudunKoko) {
+        this.labyrintinKoko = labyrintinKoko;
+        this.ruudunKoko = ruudunKoko;
+        
         labyrintti = new Maze(labyrintinKoko);
 
-        HBox pohja = new HBox(luoOhjauspaaneli(), luoRuudukko(labyrintinKoko, ruudunKoko));
+        aloitusSeina = new Rectangle(2, ruudunKoko - 2);
+        aloitusSeina.setTranslateX(-((labyrintinKoko + 2) * ruudunKoko - ruudunKoko + 2));
+        aloitusSeina.setTranslateY(ruudunKoko + 2);
+        aloitusSeina.setFill(Color.BLACK);
+        
+        maaliSeina = new Rectangle(2, ruudunKoko - 2);
+        maaliSeina.setTranslateX(-ruudunKoko - 4);
+        maaliSeina.setTranslateY((labyrintinKoko + 1) * ruudunKoko - ruudunKoko + 2);
+        maaliSeina.setFill(Color.BLACK);
+        
+        HBox pohja = new HBox(luoOhjauspaaneli(), luoRuudukko(labyrintinKoko, ruudunKoko), aloitusSeina, maaliSeina);
         pohja.setStyle("-fx-background-color: white");
 
         return pohja;
@@ -78,6 +95,7 @@ public class MazeSolverUI extends Application {
         pudotusvalikko.getItems().add("75x75");
         pudotusvalikko.getItems().add("100x100");
         pudotusvalikko.valueProperty().addListener((observable) -> {
+            alustaLabyrintti();
             int indeksi = pudotusvalikko.getSelectionModel().getSelectedIndex();
             if (indeksi == 0) ikkuna.setScene(new Scene(luoPaanakyma(5, 100)));
             else if (indeksi == 1) ikkuna.setScene(new Scene(luoPaanakyma(10, 58)));
@@ -100,9 +118,9 @@ public class MazeSolverUI extends Application {
         Button luoLabyrinttiNappi = new Button("Luo labyrintti");
         luoLabyrinttiNappi.setPrefWidth(140);
         luoLabyrinttiNappi.setOnAction(value -> {
-            if (aikajana != null) aikajana.stop();
-            alustaSeinat();
-            alustaVarit();
+            alustaLabyrintti();
+            aloitusSeina.setFill(Color.WHITE);
+            maaliSeina.setFill(Color.WHITE);
             labyrintti.luoLabyrintti();
             generointiPolku = labyrintti.haePolku();
 
@@ -117,7 +135,7 @@ public class MazeSolverUI extends Application {
         Button wallFollowerNappi = new Button("Wall follower");
         wallFollowerNappi.setPrefWidth(140);
         wallFollowerNappi.setOnAction(value -> {
-            if (aikajana != null) aikajana.stop();
+            if (labyrintti.haeVerkko() == null) return;
             alustaVarit();
             wallFollower = new WallFollower(labyrintti.haeVerkko(), labyrintinKoko);
             wallFollower.ratkaise();
@@ -133,7 +151,7 @@ public class MazeSolverUI extends Application {
         Button deadEndFillingNappi = new Button("Dead end filling");
         deadEndFillingNappi.setPrefWidth(140);
         deadEndFillingNappi.setOnAction(value -> {
-            if (aikajana != null) aikajana.stop();
+            if (labyrintti.haeVerkko() == null) return;
             alustaVarit();
             deadEndFilling = new DeadEndFilling(labyrintti.haeVerkko(), labyrintinKoko);
             deadEndFilling.ratkaise();
@@ -148,6 +166,7 @@ public class MazeSolverUI extends Application {
         
         TextArea tuloste = new TextArea();
         tuloste.setStyle("-fx-faint-focus-color: transparent; -fx-focus-color: transparent");
+        tuloste.setPrefHeight(ruudunKoko * (labyrintinKoko + 2) - 319);
         tuloste.setEditable(false);
         
         Button suorituskykytestiNappi = new Button("Suorituskykytesti");
@@ -190,14 +209,17 @@ public class MazeSolverUI extends Application {
         return ruudukko;
     }
 
-    private void alustaSeinat() {
+    private void alustaLabyrintti() {
+        if (aikajana != null) aikajana.stop();
         for (int i = 0; i < labyrintinKoko * labyrintinKoko; i++) {
             Region ruutu = (Region) ruudukko.getChildren().get(i);
             ruutu.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+            ruutu.setStyle("-fx-background-color: white");
         }
     }
 
     private void alustaVarit() {
+        if (aikajana != null) aikajana.stop();
         for (int i = 0; i < labyrintinKoko * labyrintinKoko; i++) {
             Region ruutu = (Region) ruudukko.getChildren().get(i);
             ruutu.setStyle("-fx-background-color: white");
