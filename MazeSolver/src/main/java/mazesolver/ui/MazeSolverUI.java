@@ -166,7 +166,7 @@ public class MazeSolverUI extends Application {
         
         TextArea tuloste = new TextArea();
         tuloste.setStyle("-fx-faint-focus-color: transparent; -fx-focus-color: transparent");
-        tuloste.setPrefHeight(ruudunKoko * (labyrintinKoko + 2) - 319);
+        tuloste.setPrefHeight(ruudunKoko * (labyrintinKoko + 2) - 320);
         tuloste.setEditable(false);
         
         Button suorituskykytestiNappi = new Button("Suorituskykytesti");
