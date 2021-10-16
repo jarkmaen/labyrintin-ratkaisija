@@ -2,7 +2,7 @@
 
 ## Ohjelman käynnistäminen
 
-Lataa [JAR-tiedosto](google.com) ja käynnistä ohjelma komenolla
+Lataa JAR-tiedosto [täältä](https://github.com/jarkmaen/labyrintin-ratkaisija/releases/tag/v1.0) ja käynnistä ohjelma komenolla
 
 ```
 java -jar MazeSolver.jar
@@ -10,7 +10,7 @@ java -jar MazeSolver.jar
 
 ## Käyttöliittymä
 
-<img src="https://raw.githubusercontent.com/jarkmaen/labyrintin-ratkaisija/master/Dokumentaatio/Kuvat/Kayttoliittyma.PNG">
+<img src="https://raw.githubusercontent.com/jarkmaen/labyrintin-ratkaisija/master/Dokumentaatio/kuvat/kayttoliittyma.PNG">
 
 Käyttöliittymä on jaettu kahteen osaan. Vasemalla puolella hallitaan ohjelman toimintaa ohjauspaneelista ja oikealle puolelle piirretään generoidut labyrintit sekä niiden ratkaisupolut.
 

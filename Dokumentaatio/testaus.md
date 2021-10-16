@@ -31,4 +31,4 @@ Labyrintit generoidaan valmiiksi ennen algoritmien suorittamista
 
 ## Testikattavuus
 
-<img src="https://raw.githubusercontent.com/jarkmaen/labyrintin-ratkaisija/master/Dokumentaatio/Kuvat/Testikattavuus.PNG">
+<img src="https://raw.githubusercontent.com/jarkmaen/labyrintin-ratkaisija/master/Dokumentaatio/kuvat/testikattavuus.PNG">
