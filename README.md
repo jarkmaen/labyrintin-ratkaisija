@@ -10,20 +10,6 @@
 
 [Kayttöohje](https://github.com/jarkmaen/maze-solver/blob/master/Dokumentaatio/kayttoohje.md)
 
-## Raportit
-
-[Viikko 1](https://github.com/jarkmaen/maze-solver/blob/master/Dokumentaatio/viikkoraportti1.md)
-
-[Viikko 2](https://github.com/jarkmaen/maze-solver/blob/master/Dokumentaatio/viikkoraportti2.md)
-
-[Viikko 3](https://github.com/jarkmaen/maze-solver/blob/master/Dokumentaatio/viikkoraportti3.md)
-
-[Viikko 4](https://github.com/jarkmaen/maze-solver/blob/master/Dokumentaatio/viikkoraportti4.md)
-
-[Viikko 5](https://github.com/jarkmaen/maze-solver/blob/master/Dokumentaatio/viikkoraportti5.md)
-
-[Viikko 6](https://github.com/jarkmaen/maze-solver/blob/master/Dokumentaatio/viikkoraportti6.md)
-
 ## Komentorivitoiminnot
 
 ### Ohjelman suorittaminen
