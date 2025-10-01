@@ -1,115 +1,189 @@
 package mazesolver.logic;
 
-import mazesolver.util.List;
+import mazesolver.util.ArrayList;
 
 /**
- * Wall follower algoritmi
+ * Class responsible for the wall follower algorithm
  */
 public class WallFollower {
 
-    private List<List<Integer>> verkko;
-    private List<Integer> polku;
+    private ArrayList<ArrayList<Integer>> graph;
+    private ArrayList<Integer> path;
     private int n;
 
-    public WallFollower(List<List<Integer>> verkko, int n) {
-        this.verkko = verkko;
+    public WallFollower(ArrayList<ArrayList<Integer>> graph, int n) {
+        this.graph = graph;
         this.n = n;
     }
 
-    // Käytetään vasemman käden sääntöä, eli käännytään aina vasemalle
-    // suunnasta riippuen
-    public void ratkaise() {
-        polku = new List<>();
-        int solmu = 0;
-        int edellinenSolmu = 0;
-        String suunta = "I";
-        
-        // Liikutaan labyrintissä eteenpäin kunnes päädytään maali solmuun
-        while (solmu != n * n - 1) {
-            polku.lisaa(solmu);
-            int solmunVanhaSijainti = solmu;
-            boolean b1 = false;
-            boolean b2 = false;
-            boolean b3 = false;
-            
-            // P = Pohjoinen, I = Itä, E = Etelä, L = Länsi
-            if (suunta.equals("P")) {
-                for (int i = 0; i < verkko.hae(solmu).koko(); i++) {
-                    int naapuri = verkko.hae(solmu).hae(i);
-                    if (naapuri == solmu - 1) b1 = true;
-                    if (naapuri == solmu - n) b2 = true;
-                    if (naapuri == solmu + 1) b3 = true;
-                }
-                if (b1) solmu = solmu - 1;
-                else if (b2) solmu = solmu - n;
-                else if (b3) solmu = solmu + 1;
-                else solmu = edellinenSolmu;
-            } else if (suunta.equals("I")) {
-                for (int i = 0; i < verkko.hae(solmu).koko(); i++) {
-                    int naapuri = verkko.hae(solmu).hae(i);
-                    if (naapuri == solmu - n) b1 = true;
-                    if (naapuri == solmu + 1) b2 = true;
-                    if (naapuri == solmu + n) b3 = true;
-                }
-                if (b1) solmu = solmu - n;
-                else if (b2) solmu = solmu + 1;
-                else if (b3) solmu = solmu + n;
-                else solmu = edellinenSolmu;
-            } else if (suunta.equals("E")) {
-                for (int i = 0; i < verkko.hae(solmu).koko(); i++) {
-                    int naapuri = verkko.hae(solmu).hae(i);
-                    if (naapuri == solmu + 1) b1 = true;
-                    if (naapuri == solmu + n) b2 = true;
-                    if (naapuri == solmu - 1) b3 = true;
-                }
-                if (b1) solmu = solmu + 1;
-                else if (b2) solmu = solmu + n;
-                else if (b3) solmu = solmu - 1;
-                else solmu = edellinenSolmu;
-            } else if (suunta.equals("L")) {
-                for (int i = 0; i < verkko.hae(solmu).koko(); i++) {
-                    int naapuri = verkko.hae(solmu).hae(i);
-                    if (naapuri == solmu + n) b1 = true;
-                    if (naapuri == solmu - 1) b2 = true;
-                    if (naapuri == solmu - n) b3 = true;
-                }
-                if (b1) solmu = solmu + n;
-                else if (b2) solmu = solmu - 1;
-                else if (b3) solmu = solmu - n;
-                else solmu = edellinenSolmu;
-            }
-            
-            suunta = suunta(solmunVanhaSijainti, solmu);
-            edellinenSolmu = solmunVanhaSijainti;
-        }
-        
-        polku.lisaa(solmu);
-    }
-
     /**
-     * Selvitetään orientaatio nykyisen ja seuraavan solmun sijainnin perusteella
+     * Determines the cardinal direction label (N, E, S or W) corresponding to the
+     * movement from the current node to the next node
      */
-    public String suunta(int nykyinenSolmu, int seuraavaSolmu) {
-        String suunta = "";
+    private String determineDirectionLabel(int currentNode, int nextNode) {
+        String direction = "";
 
-        if (nykyinenSolmu > seuraavaSolmu) {
-            if (nykyinenSolmu - seuraavaSolmu == 1) {
-                suunta = "L";
+        if (currentNode > nextNode) {
+            if (currentNode - nextNode == 1) {
+                direction = "W";
             } else {
-                suunta = "P";
+                direction = "N";
             }
-        } else if (seuraavaSolmu > nykyinenSolmu) {
-            if (seuraavaSolmu - nykyinenSolmu == 1) {
-                suunta = "I";
+        } else if (nextNode > currentNode) {
+            if (nextNode - currentNode == 1) {
+                direction = "E";
             } else {
-                suunta = "E";
+                direction = "S";
             }
         }
 
-        return suunta;
+        return direction;
     }
-    
-    public List<Integer> haePolku() {
-        return this.polku;
+
+    public void solve() {
+        path = new ArrayList<>();
+
+        int start = 0; // (0, 0)
+        int end = n * n - 1; // (n-1, n-1)
+
+        String direction = "E";
+        int currentNode = start;
+        int previousNode = 0;
+
+        // Traverse the maze until the end is reached
+        while (currentNode != end) {
+            path.add(currentNode);
+
+            int nextNode = -1;
+
+            boolean rightAvailable = false;
+            boolean forwardAvailable = false;
+            boolean leftAvailable = false;
+
+            // Follow the right-hand rule (check right -> forward -> left)
+            // N = North, E = East, S = South, W = West
+            if (direction.equals("N")) {
+                for (int i = 0; i < graph.get(currentNode).size(); i++) {
+                    int neighbor = graph.get(currentNode).get(i);
+
+                    if (neighbor == currentNode + 1) {
+                        rightAvailable = true;
+                    }
+
+                    if (neighbor == currentNode - n) {
+                        forwardAvailable = true;
+                    }
+
+                    if (neighbor == currentNode - 1) {
+                        leftAvailable = true;
+                    }
+                }
+
+                if (rightAvailable) {
+                    nextNode = currentNode + 1;
+                } else if (forwardAvailable) {
+                    nextNode = currentNode - n;
+                } else if (leftAvailable) {
+                    nextNode = currentNode - 1;
+                } else {
+                    // Turn 180 (backtrack)
+                    nextNode = previousNode;
+                }
+            } else if (direction.equals("E")) {
+                for (int i = 0; i < graph.get(currentNode).size(); i++) {
+                    int neighbor = graph.get(currentNode).get(i);
+
+                    if (neighbor == currentNode + n) {
+                        rightAvailable = true;
+                    }
+
+                    if (neighbor == currentNode + 1) {
+                        forwardAvailable = true;
+                    }
+
+                    if (neighbor == currentNode - n) {
+                        leftAvailable = true;
+                    }
+                }
+
+                if (rightAvailable) {
+                    nextNode = currentNode + n;
+                } else if (forwardAvailable) {
+                    nextNode = currentNode + 1;
+                } else if (leftAvailable) {
+                    nextNode = currentNode - n;
+                } else {
+                    // Turn 180 (backtrack)
+                    nextNode = previousNode;
+                }
+
+            } else if (direction.equals("S")) {
+                for (int i = 0; i < graph.get(currentNode).size(); i++) {
+                    int neighbor = graph.get(currentNode).get(i);
+
+                    if (neighbor == currentNode - 1) {
+                        rightAvailable = true;
+                    }
+
+                    if (neighbor == currentNode + n) {
+                        forwardAvailable = true;
+                    }
+
+                    if (neighbor == currentNode + 1) {
+                        leftAvailable = true;
+                    }
+                }
+
+                if (rightAvailable) {
+                    nextNode = currentNode - 1;
+                } else if (forwardAvailable) {
+                    nextNode = currentNode + n;
+                } else if (leftAvailable) {
+                    nextNode = currentNode + 1;
+                } else {
+                    // Turn 180 (backtrack)
+                    nextNode = previousNode;
+                }
+
+            } else if (direction.equals("W")) {
+                for (int i = 0; i < graph.get(currentNode).size(); i++) {
+                    int neighbor = graph.get(currentNode).get(i);
+
+                    if (neighbor == currentNode - n) {
+                        rightAvailable = true;
+                    }
+
+                    if (neighbor == currentNode - 1) {
+                        forwardAvailable = true;
+                    }
+
+                    if (neighbor == currentNode + n) {
+                        leftAvailable = true;
+                    }
+                }
+
+                if (rightAvailable) {
+                    nextNode = currentNode - n;
+                } else if (forwardAvailable) {
+                    nextNode = currentNode - 1;
+                } else if (leftAvailable) {
+                    nextNode = currentNode + n;
+                } else {
+                    // Turn 180 (backtrack)
+                    nextNode = previousNode;
+                }
+            }
+
+            direction = determineDirectionLabel(currentNode, nextNode);
+
+            previousNode = currentNode;
+            currentNode = nextNode;
+        }
+
+        path.add(currentNode);
+    }
+
+    public ArrayList<Integer> getPath() {
+        return path;
     }
 }

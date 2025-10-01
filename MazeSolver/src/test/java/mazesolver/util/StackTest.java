@@ -1,49 +1,40 @@
 package mazesolver.util;
 
+import java.util.EmptyStackException;
+
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class StackTest {
 
-    @Test
-    public void pinoonVoiLisataAlkioita() {
-        Stack<Integer> pino = new Stack<>();
-        pino.lisays(1);
-        assertFalse(pino.onkoTyhja());
+    @Test(expected = EmptyStackException.class)
+    public void popOnEmptyStackThrowsException() {
+        Stack<String> stack = new Stack<>();
+        stack.pop();
     }
 
     @Test
-    public void pinoPoistaaYlimmanAlkion() {
-        Stack<Integer> pino = new Stack<>();
-        pino.lisays(1);
-        pino.lisays(2);
-        assertTrue(pino.kurkistus() == 2);
-        pino.poisto();
-        assertTrue(pino.kurkistus() == 1);
+    public void pushMultipleElementsPopReturnsInReverseOrder() {
+        Stack<String> stack = new Stack<>();
+        stack.push("1st");
+        stack.push("2nd");
+        stack.push("3rd");
+        assertEquals("3rd", stack.pop());
+        assertEquals("2nd", stack.pop());
+        assertEquals("1st", stack.pop());
     }
-    
+
     @Test
-    public void tyhjastaPinostaEiVoiPoistaa() {
-        Stack<Integer> pino = new Stack<>();
-        assertTrue(pino.onkoTyhja());
-        pino.poisto();
-        assertTrue(pino.onkoTyhja());
-        pino.lisays(1);
-        assertFalse(pino.onkoTyhja());
+    public void pushNullElementPopReturnsNull() {
+        Stack<Object> stack = new Stack<>();
+        stack.push(null);
+        assertNull(stack.pop());
     }
-    
+
     @Test
-    public void pinonKurkistusPalauttaaOikeanAlkion() {
-        Stack<Integer> pino = new Stack<>();
-        for (int i = 0; i < 100; i++) {
-            pino.lisays(i);
-        }
-        assertTrue(pino.kurkistus() == 99);
-    }
-    
-    @Test
-    public void tyhjastaPinostaEiVoiKurkistaa() {
-        Stack<Integer> pino = new Stack<>();
-        assertTrue(pino.kurkistus() == null);
+    public void pushThenPopReturnsSameElement() {
+        Stack<Integer> stack = new Stack<>();
+        stack.push(42);
+        assertEquals(Integer.valueOf(42), stack.pop());
     }
 }

@@ -1,53 +1,40 @@
 package mazesolver.util;
 
 /**
- * Pinorakenne
- * @param <E> E - Tyyppiparametri
+ * Last-In First-Out (LIFO) stack data structure implemented using a linked list
+ * 
+ * @param <E> element type
  */
 public class Stack<E> {
 
-    private Node ylin;
-    private int koko;
+    private Node<E> top;
 
-    public Stack() {
-        this.ylin = null;
-        this.koko = 0;
-    }
-
-    public void lisays(E e) {
-        Node n = new Node(e);
-        n.seuraava = ylin;
-        ylin = n;
-        koko++;
-    }
-
-    public void poisto() {
-        if (onkoTyhja()) {
-            return;
+    public E peek() {
+        if (top == null) {
+            throw new java.util.EmptyStackException();
         }
-        ylin = ylin.seuraava;
-        koko--;
+
+        return top.getData();
     }
 
-    public E kurkistus() {
-        if (onkoTyhja()) {
-            return null;
+    public E pop() {
+        if (top == null) {
+            throw new java.util.EmptyStackException();
         }
-        return (E) ylin.e;
+
+        E data = top.getData();
+        top = top.getNext();
+
+        return data;
     }
 
-    public boolean onkoTyhja() {
-        return koko == 0;
+    public boolean empty() {
+        return top == null;
     }
 
-    private class Node<E> {
-
-        private E e;
-        private Node seuraava;
-
-        public Node(E e) {
-            this.e = e;
-            this.seuraava = null;
-        }
+    public void push(E element) {
+        Node<E> node = new Node<>(element);
+        node.setNext(top);
+        top = node;
     }
 }

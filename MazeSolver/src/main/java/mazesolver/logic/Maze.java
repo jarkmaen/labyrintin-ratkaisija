@@ -1,17 +1,17 @@
 package mazesolver.logic;
 
-import mazesolver.util.List;
+import mazesolver.util.ArrayList;
 import mazesolver.util.Pair;
 import mazesolver.util.RandomNumberGenerator;
 import mazesolver.util.Stack;
 
 /**
- * Labyrintin logiikasta vastaava luokka
+ * Class responsible for the maze logic
  */
 public class Maze {
 
-    private List<Pair<Integer, Integer>> polku;
-    private List<List<Integer>> verkko;
+    private ArrayList<Pair<Integer, Integer>> path;
+    private ArrayList<ArrayList<Integer>> graph;
     private int n;
 
     public Maze(int n) {
@@ -19,67 +19,95 @@ public class Maze {
     }
 
     /**
-     * Generoi labyrintin käyttäen satunnaistettua syvyyshaku algoritmia
+     * Generates a random maze using a depth-first search (DFS) algorithm
      */
-    public void luoLabyrintti() {
+    public void generateMaze() {
         RandomNumberGenerator rng = new RandomNumberGenerator();
-        Stack<Pair<Integer, Integer>> pino = new Stack<>();
-        boolean[][] vierailtu = new boolean[n][n];
-        polku = new List<>();
+        Stack<Pair<Integer, Integer>> stack = new Stack<>();
+        boolean[][] visited = new boolean[n][n];
 
-        verkko = new List<>();
-        for (int i = 0; i < n * n; i++) verkko.lisaa(new List<>());
-        int edellinenSolmu;
-        int nykyinenSolmu = 0;
+        path = new ArrayList<>();
+        graph = new ArrayList<>();
 
-        // Valitaan satunnaisesti aloitus kohta
-        int r1 = rng.generoi(n);
-        int r2 = rng.generoi(n);
-        pino.lisays(new Pair<>(r1, r2));
-        vierailtu[r1][r2] = true;
+        for (int i = 0; i < n * n; i++) {
+            graph.add(new ArrayList<>());
+        }
 
-        while (!pino.onkoTyhja()) {
-            List<String> suunnat = new List<>();
-            int x = pino.kurkistus().haeAvain();
-            int y = pino.kurkistus().haeArvo();
-            pino.poisto();
+        // Choose a random starting cell for the maze generation
+        int startX = rng.generate(n);
+        int startY = rng.generate(n);
+        stack.push(new Pair<>(startX, startY));
+        visited[startX][startY] = true;
 
-            // P = Pohjoinen, I = Itä, E = Etelä, L = Länsi
-            if (y != 0 && !vierailtu[x][y - 1]) suunnat.lisaa("P");
-            if (x + 1 != n && !vierailtu[x + 1][y]) suunnat.lisaa("I");
-            if (y + 1 != n && !vierailtu[x][y + 1]) suunnat.lisaa("E");
-            if (x != 0 && !vierailtu[x - 1][y]) suunnat.lisaa("L");
+        int currentNode = 0;
+        int previousNode;
 
-            if (suunnat.koko() != 0) {
-                pino.lisays(new Pair<>(x, y));
-                int r = rng.generoi(suunnat.koko());
-                String suunta = suunnat.hae(r);
+        while (!stack.empty()) {
+            ArrayList<String> unvisitedNeighbors = new ArrayList<>();
 
-                int sX = 0;
-                int sY = 0;
-                
-                if (suunta.equals("P")) sY = -1;
-                else if (suunta.equals("I")) sX = 1;
-                else if (suunta.equals("E")) sY = 1;
-                else if (suunta.equals("L")) sX = -1;
-                
-                vierailtu[x + sX][y + sY] = true;
-                pino.lisays(new Pair<>(x + sX, y + sY));
+            int x = stack.peek().getKey();
+            int y = stack.peek().getValue();
+
+            stack.pop();
+
+            // N = North, E = East, S = South, W = West
+            if (y != 0 && !visited[x][y - 1]) {
+                unvisitedNeighbors.add("N");
             }
 
-            edellinenSolmu = nykyinenSolmu;
-            nykyinenSolmu = x + n * y;
-            if (polku.koko() != 0) verkko.hae(edellinenSolmu).lisaa(nykyinenSolmu);
+            if (x + 1 != n && !visited[x + 1][y]) {
+                unvisitedNeighbors.add("E");
+            }
 
-            polku.lisaa(new Pair<>(x, y));
+            if (y + 1 != n && !visited[x][y + 1]) {
+                unvisitedNeighbors.add("S");
+            }
+
+            if (x != 0 && !visited[x - 1][y]) {
+                unvisitedNeighbors.add("W");
+            }
+
+            if (unvisitedNeighbors.size() != 0) {
+                stack.push(new Pair<>(x, y));
+
+                int directionIndex = rng.generate(unvisitedNeighbors.size());
+                String direction = unvisitedNeighbors.get(directionIndex);
+
+                int offsetX = 0;
+                int offsetY = 0;
+
+                if (direction.equals("N")) {
+                    offsetY = -1;
+                } else if (direction.equals("E")) {
+                    offsetX = 1;
+                } else if (direction.equals("S")) {
+                    offsetY = 1;
+                } else if (direction.equals("W")) {
+                    offsetX = -1;
+                }
+
+                stack.push(new Pair<>(x + offsetX, y + offsetY));
+                visited[x + offsetX][y + offsetY] = true;
+            }
+
+            previousNode = currentNode;
+
+            // Convert 2D coordinates to a unique node index for the graph
+            currentNode = x + y * n;
+
+            if (path.size() != 0) {
+                graph.get(previousNode).add(currentNode);
+            }
+
+            path.add(new Pair<>(x, y));
         }
     }
 
-    public List<Pair<Integer, Integer>> haePolku() {
-        return this.polku;
+    public ArrayList<ArrayList<Integer>> getGraph() {
+        return graph;
     }
 
-    public List<List<Integer>> haeVerkko() {
-        return this.verkko;
+    public ArrayList<Pair<Integer, Integer>> getPath() {
+        return path;
     }
 }

@@ -26,277 +26,333 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
 import mazesolver.logic.DeadEndFilling;
 import mazesolver.logic.Maze;
 import mazesolver.logic.WallFollower;
-import mazesolver.util.List;
+import mazesolver.util.ArrayList;
 import mazesolver.util.Pair;
 import mazesolver.util.PerformanceTest;
 
 /**
- * Ohjelman käyttöliittymästä vastaava luokka
+ * Class responsible for the maze solver's user interface
  */
 public class MazeSolverUI extends Application {
 
-    private List<Pair<Integer, Integer>> generointiPolku;
-    private List<Integer> wallFollowerPolku;
-    private List<Integer> deadEndFillingPolku;
-    private Timeline aikajana;
-    private GridPane ruudukko;
-    private Stage ikkuna;
-
-    private Maze labyrintti;
-    private WallFollower wallFollower;
+    private ArrayList<Integer> deadEndFillingPath;
+    private ArrayList<Integer> wallFollowerPath;
+    private ArrayList<Pair<Integer, Integer>> mazePath;
     private DeadEndFilling deadEndFilling;
+    private Maze maze;
+    private WallFollower wallFollower;
 
-    private Rectangle aloitusSeina;
-    private Rectangle maaliSeina;
-    
-    private int labyrintinKoko;
-    private int ruudunKoko;
-    private int kierros;
+    private GridPane gridPane;
+    private Rectangle endWall;
+    private Rectangle startWall;
+    private Stage window;
+    private Timeline timeline;
 
-    private Parent luoPaanakyma(int labyrintinKoko, int ruudunKoko) {
-        this.labyrintinKoko = labyrintinKoko;
-        this.ruudunKoko = ruudunKoko;
-        
-        labyrintti = new Maze(labyrintinKoko);
+    private int iteration;
+    private int mazeSize;
+    private int tileSize;
 
-        aloitusSeina = new Rectangle(2, ruudunKoko - 2);
-        aloitusSeina.setTranslateX(-((labyrintinKoko + 2) * ruudunKoko - ruudunKoko + 2));
-        aloitusSeina.setTranslateY(ruudunKoko + 2);
-        aloitusSeina.setFill(Color.BLACK);
-        
-        maaliSeina = new Rectangle(2, ruudunKoko - 2);
-        maaliSeina.setTranslateX(-ruudunKoko - 4);
-        maaliSeina.setTranslateY((labyrintinKoko + 1) * ruudunKoko - ruudunKoko + 2);
-        maaliSeina.setFill(Color.BLACK);
-        
-        HBox pohja = new HBox(luoOhjauspaaneli(), luoRuudukko(labyrintinKoko, ruudunKoko), aloitusSeina, maaliSeina);
-        pohja.setStyle("-fx-background-color: white");
+    private Parent createMainView(int mazeSize, int tileSize) {
+        this.mazeSize = mazeSize;
+        this.tileSize = tileSize;
 
-        return pohja;
+        maze = new Maze(mazeSize);
+
+        startWall = new Rectangle(2, tileSize - 2);
+        startWall.setTranslateX(-((mazeSize + 2) * tileSize - tileSize + 2));
+        startWall.setTranslateY(tileSize + 2);
+        startWall.setFill(Color.BLACK);
+
+        endWall = new Rectangle(2, tileSize - 2);
+        endWall.setTranslateX(-tileSize - 4);
+        endWall.setTranslateY((mazeSize + 1) * tileSize - tileSize + 2);
+        endWall.setFill(Color.BLACK);
+
+        HBox layout = new HBox(createControlPanel(), createGrid(mazeSize, tileSize), startWall, endWall);
+        layout.setStyle("-fx-background-color: white");
+
+        return layout;
     }
 
-    private VBox luoOhjauspaaneli() {
-        VBox ohjauspaneeli = new VBox();
+    private VBox createControlPanel() {
+        VBox controlPanel = new VBox();
 
-        Text labyrintinKokoTeksti = new Text("Labyrintin koko:");
+        Text mazeSizeText = new Text("Maze size:");
 
-        ChoiceBox pudotusvalikko = new ChoiceBox();
-        pudotusvalikko.setPrefWidth(140);
-        pudotusvalikko.setValue(labyrintinKoko + "x" + labyrintinKoko);
-        pudotusvalikko.getItems().add("5x5");
-        pudotusvalikko.getItems().add("10x10");
-        pudotusvalikko.getItems().add("20x20");
-        pudotusvalikko.getItems().add("30x30");
-        pudotusvalikko.getItems().add("40x40");
-        pudotusvalikko.getItems().add("50x50");
-        pudotusvalikko.getItems().add("75x75");
-        pudotusvalikko.getItems().add("100x100");
-        pudotusvalikko.valueProperty().addListener((observable) -> {
-            alustaLabyrintti();
-            int indeksi = pudotusvalikko.getSelectionModel().getSelectedIndex();
-            if (indeksi == 0) ikkuna.setScene(new Scene(luoPaanakyma(5, 100)));
-            else if (indeksi == 1) ikkuna.setScene(new Scene(luoPaanakyma(10, 58)));
-            else if (indeksi == 2) ikkuna.setScene(new Scene(luoPaanakyma(20, 32)));
-            else if (indeksi == 3) ikkuna.setScene(new Scene(luoPaanakyma(30, 22)));
-            else if (indeksi == 4) ikkuna.setScene(new Scene(luoPaanakyma(40, 17)));
-            else if (indeksi == 5) ikkuna.setScene(new Scene(luoPaanakyma(50, 18)));
-            else if (indeksi == 6) ikkuna.setScene(new Scene(luoPaanakyma(75, 12)));
-            else if (indeksi == 7) ikkuna.setScene(new Scene(luoPaanakyma(100, 9)));
-        });
+        ChoiceBox<String> dropdownMenu = new ChoiceBox<>();
+        dropdownMenu.setPrefWidth(140);
+        dropdownMenu.setValue(mazeSize + "x" + mazeSize);
+        dropdownMenu.getItems().addAll("5x5", "10x10", "20x20", "30x30", "40x40", "50x50", "75x75", "100x100");
+        dropdownMenu.valueProperty().addListener((observable) -> {
+            initializeMaze();
 
-        CheckBox labyrinttiValintaruutu = new CheckBox("Animoi generointi");
-        CheckBox algoritmiValintaruutu = new CheckBox("Animoi algoritmi");
-        
-        Separator erotin1 = new Separator();
-        erotin1.setPadding(new Insets(20, 0, 20, 0));
-        Separator erotin2 = new Separator();
-        erotin2.setPadding(new Insets(20, 0, 20, 0));
+            int index = dropdownMenu.getSelectionModel().getSelectedIndex();
 
-        Button luoLabyrinttiNappi = new Button("Luo labyrintti");
-        luoLabyrinttiNappi.setPrefWidth(140);
-        luoLabyrinttiNappi.setOnAction(value -> {
-            alustaLabyrintti();
-            aloitusSeina.setFill(Color.WHITE);
-            maaliSeina.setFill(Color.WHITE);
-            labyrintti.luoLabyrintti();
-            generointiPolku = labyrintti.haePolku();
-
-            if (labyrinttiValintaruutu.isSelected()) {
-                animoi("DFS", generointiPolku.koko() - 1);
-            } else {
-                for (int i = 0; i < generointiPolku.koko() - 1; i++) piirraLabyrintti(i);
-                alustaVarit();
+            if (index == 0) {
+                window.setScene(new Scene(createMainView(5, 100)));
+            } else if (index == 1) {
+                window.setScene(new Scene(createMainView(10, 58)));
+            } else if (index == 2) {
+                window.setScene(new Scene(createMainView(20, 32)));
+            } else if (index == 3) {
+                window.setScene(new Scene(createMainView(30, 22)));
+            } else if (index == 4) {
+                window.setScene(new Scene(createMainView(40, 17)));
+            } else if (index == 5) {
+                window.setScene(new Scene(createMainView(50, 18)));
+            } else if (index == 6) {
+                window.setScene(new Scene(createMainView(75, 12)));
+            } else if (index == 7) {
+                window.setScene(new Scene(createMainView(100, 9)));
             }
         });
 
-        Button wallFollowerNappi = new Button("Wall follower");
-        wallFollowerNappi.setPrefWidth(140);
-        wallFollowerNappi.setOnAction(value -> {
-            if (labyrintti.haeVerkko() == null) return;
-            alustaVarit();
-            wallFollower = new WallFollower(labyrintti.haeVerkko(), labyrintinKoko);
-            wallFollower.ratkaise();
-            wallFollowerPolku = wallFollower.haePolku();
+        CheckBox animateGenerationCheckbox = new CheckBox("Animate generation");
+        CheckBox animateAlgorithmCheckbox = new CheckBox("Animate algorithm");
 
-            if (algoritmiValintaruutu.isSelected()) {
-                animoi("WallFollower", wallFollowerPolku.koko());
+        Separator separator1 = new Separator();
+        separator1.setPadding(new Insets(20, 0, 20, 0));
+
+        Separator separator2 = new Separator();
+        separator2.setPadding(new Insets(20, 0, 20, 0));
+
+        Button generateMazeButton = new Button("Generate maze");
+        generateMazeButton.setPrefWidth(140);
+        generateMazeButton.setOnAction(value -> {
+            initializeMaze();
+
+            maze.generateMaze();
+            mazePath = maze.getPath();
+
+            startWall.setFill(Color.WHITE);
+            endWall.setFill(Color.WHITE);
+
+            if (animateGenerationCheckbox.isSelected()) {
+                animate("DFS", mazePath.size() - 1);
             } else {
-                for (int i = 0; i < wallFollowerPolku.koko(); i++) piirraWallFollower(i);
+                for (int i = 0; i < mazePath.size() - 1; i++) {
+                    drawMaze(i);
+                }
+
+                initializeColors();
             }
         });
 
-        Button deadEndFillingNappi = new Button("Dead end filling");
-        deadEndFillingNappi.setPrefWidth(140);
-        deadEndFillingNappi.setOnAction(value -> {
-            if (labyrintti.haeVerkko() == null) return;
-            alustaVarit();
-            deadEndFilling = new DeadEndFilling(labyrintti.haeVerkko(), labyrintinKoko);
-            deadEndFilling.ratkaise();
-            deadEndFillingPolku = deadEndFilling.haePolku();
+        Button wallFollowerButton = new Button("Wall follower");
+        wallFollowerButton.setPrefWidth(140);
+        wallFollowerButton.setOnAction(value -> {
+            if (maze.getGraph() == null) {
+                return;
+            }
 
-            if (algoritmiValintaruutu.isSelected()) {
-                animoi("DeadEndFilling", deadEndFillingPolku.koko());
+            initializeColors();
+
+            wallFollower = new WallFollower(maze.getGraph(), mazeSize);
+            wallFollower.solve();
+            wallFollowerPath = wallFollower.getPath();
+
+            if (animateAlgorithmCheckbox.isSelected()) {
+                animate("WallFollower", wallFollowerPath.size());
             } else {
-                for (int i = 0; i < deadEndFillingPolku.koko(); i++) piirraDeadEndFilling(i);
+                for (int i = 0; i < wallFollowerPath.size(); i++) {
+                    drawWallFollower(i);
+                }
             }
         });
-        
-        TextArea tuloste = new TextArea();
-        tuloste.setStyle("-fx-faint-focus-color: transparent; -fx-focus-color: transparent");
-        tuloste.setPrefHeight(ruudunKoko * (labyrintinKoko + 2) - 320);
-        tuloste.setEditable(false);
-        
-        Button suorituskykytestiNappi = new Button("Suorituskykytesti");
-        suorituskykytestiNappi.setPrefWidth(140);
-        suorituskykytestiNappi.setOnAction(value -> {
-            PerformanceTest suorityskykytesti = new PerformanceTest();
-            String tulos = "Aloitetaan testi.\n\n";
-            tulos = tulos + suorityskykytesti.wallFollowerTehokkuustesti();
-            tulos = tulos + "\n";
-            tulos = tulos + suorityskykytesti.deadEndFillingTehokkuustesti();
-            tulos = tulos + "\nTesti suoritettu!";
-            tuloste.setText(tulos);
+
+        Button deadEndFillingButton = new Button("Dead-end filling");
+        deadEndFillingButton.setPrefWidth(140);
+        deadEndFillingButton.setOnAction(value -> {
+            if (maze.getGraph() == null) {
+                return;
+            }
+
+            initializeColors();
+
+            deadEndFilling = new DeadEndFilling(maze.getGraph(), mazeSize);
+            deadEndFilling.solve();
+            deadEndFillingPath = deadEndFilling.getPath();
+
+            if (animateAlgorithmCheckbox.isSelected()) {
+                animate("DeadEndFilling", deadEndFillingPath.size());
+            } else {
+                for (int i = 0; i < deadEndFillingPath.size(); i++) {
+                    drawDeadEndFilling(i);
+                }
+            }
         });
 
-        ohjauspaneeli.getChildren().addAll(labyrintinKokoTeksti, pudotusvalikko, luoLabyrinttiNappi, labyrinttiValintaruutu, 
-                erotin1, wallFollowerNappi, deadEndFillingNappi, algoritmiValintaruutu, 
-                erotin2, suorituskykytestiNappi, tuloste);
-        ohjauspaneeli.setStyle("-fx-background-color: #f5f5f5");
-        ohjauspaneeli.setPadding(new Insets(5));
-        ohjauspaneeli.setPrefWidth(150);
-        ohjauspaneeli.setSpacing(5);
+        TextArea output = new TextArea();
+        output.setEditable(false);
+        output.setPrefHeight(tileSize * (mazeSize + 2) - 320);
+        output.setStyle("-fx-faint-focus-color: transparent; -fx-focus-color: transparent");
 
-        return ohjauspaneeli;
+        Button performanceTestButton = new Button("Performance test");
+        performanceTestButton.setPrefWidth(140);
+        performanceTestButton.setOnAction(value -> {
+            PerformanceTest performanceTest = new PerformanceTest();
+
+            String result = "Starting test...\n\n";
+            result = result + performanceTest.wallFollowerPerformanceTest();
+            result = result + "\n";
+            result = result + performanceTest.deadEndFillingPerformanceTest();
+            result = result + "\nTest completed!";
+
+            output.setText(result);
+        });
+
+        controlPanel.getChildren().addAll(mazeSizeText, dropdownMenu, generateMazeButton, animateGenerationCheckbox,
+                separator1, wallFollowerButton, deadEndFillingButton, animateAlgorithmCheckbox,
+                separator2, performanceTestButton, output);
+        controlPanel.setPadding(new Insets(5));
+        controlPanel.setPrefWidth(150);
+        controlPanel.setSpacing(5);
+        controlPanel.setStyle("-fx-background-color: #f5f5f5");
+
+        return controlPanel;
     }
 
-    private GridPane luoRuudukko(int labyrintinKoko, int ruudunKoko) {
-        ruudukko = new GridPane();
-        ruudukko.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-        HBox.setMargin(ruudukko, new Insets(ruudunKoko));
+    private GridPane createGrid(int mazeSize, int tileSize) {
+        gridPane = new GridPane();
+        gridPane.setBorder(new Border(
+                new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 
-        for (int y = 0; y < labyrintinKoko; y++) {
-            for (int x = 0; x < labyrintinKoko; x++) {
-                Region ruutu = new Region();
-                ruutu.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                ruutu.setPrefSize(ruudunKoko, ruudunKoko);
-                ruudukko.add(ruutu, x, y);
+        HBox.setMargin(gridPane, new Insets(tileSize));
+
+        for (int y = 0; y < mazeSize; y++) {
+            for (int x = 0; x < mazeSize; x++) {
+                Region tile = new Region();
+                tile.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
+                        BorderWidths.DEFAULT)));
+                tile.setPrefSize(tileSize, tileSize);
+
+                gridPane.add(tile, x, y);
             }
         }
 
-        return ruudukko;
+        return gridPane;
     }
 
-    private void alustaLabyrintti() {
-        if (aikajana != null) aikajana.stop();
-        for (int i = 0; i < labyrintinKoko * labyrintinKoko; i++) {
-            Region ruutu = (Region) ruudukko.getChildren().get(i);
-            ruutu.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-            ruutu.setStyle("-fx-background-color: white");
+    private void initializeMaze() {
+        if (timeline != null) {
+            timeline.stop();
+        }
+
+        for (int i = 0; i < mazeSize * mazeSize; i++) {
+            Region tile = (Region) gridPane.getChildren().get(i);
+
+            tile.setBorder(new Border(
+                    new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+            tile.setStyle("-fx-background-color: white");
         }
     }
 
-    private void alustaVarit() {
-        if (aikajana != null) aikajana.stop();
-        for (int i = 0; i < labyrintinKoko * labyrintinKoko; i++) {
-            Region ruutu = (Region) ruudukko.getChildren().get(i);
-            ruutu.setStyle("-fx-background-color: white");
+    private void initializeColors() {
+        if (timeline != null) {
+            timeline.stop();
+        }
+
+        for (int i = 0; i < mazeSize * mazeSize; i++) {
+            Region tile = (Region) gridPane.getChildren().get(i);
+            tile.setStyle("-fx-background-color: white");
         }
     }
 
-    private void piirraLabyrintti(int i) {
-        int x1 = generointiPolku.hae(i).haeAvain();
-        int y1 = generointiPolku.hae(i).haeArvo();
-        int x2 = generointiPolku.hae(i + 1).haeAvain();
-        int y2 = generointiPolku.hae(i + 1).haeArvo();
+    private void drawMaze(int i) {
+        int x1 = mazePath.get(i).getKey();
+        int y1 = mazePath.get(i).getValue();
+        int x2 = mazePath.get(i + 1).getKey();
+        int y2 = mazePath.get(i + 1).getValue();
 
-        Region nykyinenRuutu = (Region) ruudukko.getChildren().get(x1 + labyrintinKoko * y1);
-        nykyinenRuutu.setStyle("-fx-background-color: white");
-        BorderStroke reuna1 = nykyinenRuutu.getBorder().getStrokes().get(0);
+        Region currentTile = (Region) gridPane.getChildren().get(x1 + y1 * mazeSize);
+        currentTile.setStyle("-fx-background-color: white");
+        BorderStroke border1 = currentTile.getBorder().getStrokes().get(0);
 
-        Region seuraavaRuutu = (Region) ruudukko.getChildren().get(x2 + labyrintinKoko * y2);
-        seuraavaRuutu.setStyle("-fx-background-color: gray");
-        BorderStroke reuna2 = seuraavaRuutu.getBorder().getStrokes().get(0);
+        Region nextTile = (Region) gridPane.getChildren().get(x2 + y2 * mazeSize);
+        nextTile.setStyle("-fx-background-color: gray");
+        BorderStroke border2 = nextTile.getBorder().getStrokes().get(0);
 
         if (x1 == x2) {
             if (y1 > y2) {
-                nykyinenRuutu.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK, BorderStrokeStyle.NONE, reuna1.getRightStyle(), reuna1.getBottomStyle(), reuna1.getLeftStyle(), reuna1.getRadii(), reuna1.getWidths(), reuna1.getInsets())));
-                seuraavaRuutu.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK, reuna2.getTopStyle(), reuna2.getRightStyle(), BorderStrokeStyle.NONE, reuna2.getLeftStyle(), reuna2.getRadii(), reuna2.getWidths(), reuna2.getInsets())));
+                currentTile.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
+                        BorderStrokeStyle.NONE, border1.getRightStyle(), border1.getBottomStyle(),
+                        border1.getLeftStyle(), border1.getRadii(), border1.getWidths(), border1.getInsets())));
+                nextTile.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
+                        border2.getTopStyle(), border2.getRightStyle(), BorderStrokeStyle.NONE, border2.getLeftStyle(),
+                        border2.getRadii(), border2.getWidths(), border2.getInsets())));
             } else {
-                nykyinenRuutu.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK, reuna1.getTopStyle(), reuna1.getRightStyle(), BorderStrokeStyle.NONE, reuna1.getLeftStyle(), reuna1.getRadii(), reuna1.getWidths(), reuna1.getInsets())));
-                seuraavaRuutu.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK, BorderStrokeStyle.NONE, reuna2.getRightStyle(), reuna2.getBottomStyle(), reuna2.getLeftStyle(), reuna2.getRadii(), reuna2.getWidths(), reuna2.getInsets())));
+                currentTile.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
+                        border1.getTopStyle(), border1.getRightStyle(), BorderStrokeStyle.NONE, border1.getLeftStyle(),
+                        border1.getRadii(), border1.getWidths(), border1.getInsets())));
+                nextTile.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
+                        BorderStrokeStyle.NONE, border2.getRightStyle(), border2.getBottomStyle(),
+                        border2.getLeftStyle(), border2.getRadii(), border2.getWidths(), border2.getInsets())));
             }
         } else if (y1 == y2) {
             if (x1 > x2) {
-                nykyinenRuutu.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK, reuna1.getTopStyle(), reuna1.getRightStyle(), reuna1.getBottomStyle(), BorderStrokeStyle.NONE, reuna1.getRadii(), reuna1.getWidths(), reuna1.getInsets())));
-                seuraavaRuutu.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK, reuna2.getTopStyle(), BorderStrokeStyle.NONE, reuna2.getBottomStyle(), reuna2.getLeftStyle(), reuna2.getRadii(), reuna2.getWidths(), reuna2.getInsets())));
+                currentTile.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
+                        border1.getTopStyle(), border1.getRightStyle(), border1.getBottomStyle(),
+                        BorderStrokeStyle.NONE, border1.getRadii(), border1.getWidths(), border1.getInsets())));
+                nextTile.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
+                        border2.getTopStyle(), BorderStrokeStyle.NONE, border2.getBottomStyle(), border2.getLeftStyle(),
+                        border2.getRadii(), border2.getWidths(), border2.getInsets())));
             } else {
-                nykyinenRuutu.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK, reuna1.getTopStyle(), BorderStrokeStyle.NONE, reuna1.getBottomStyle(), reuna1.getLeftStyle(), reuna1.getRadii(), reuna1.getWidths(), reuna1.getInsets())));
-                seuraavaRuutu.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK, reuna2.getTopStyle(), reuna2.getRightStyle(), reuna2.getBottomStyle(), BorderStrokeStyle.NONE, reuna2.getRadii(), reuna2.getWidths(), reuna2.getInsets())));
+                currentTile.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
+                        border1.getTopStyle(), BorderStrokeStyle.NONE, border1.getBottomStyle(), border1.getLeftStyle(),
+                        border1.getRadii(), border1.getWidths(), border1.getInsets())));
+                nextTile.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
+                        border2.getTopStyle(), border2.getRightStyle(), border2.getBottomStyle(),
+                        BorderStrokeStyle.NONE, border2.getRadii(), border2.getWidths(), border2.getInsets())));
             }
         }
     }
 
-    private void piirraWallFollower(int i) {
-        Region ruutu = (Region) ruudukko.getChildren().get(wallFollowerPolku.hae(i));
-        ruutu.setStyle("-fx-background-color: #ffcccb");
+    private void drawWallFollower(int i) {
+        Region tile = (Region) gridPane.getChildren().get(wallFollowerPath.get(i));
+        tile.setStyle("-fx-background-color: #ffcccb");
     }
 
-    private void piirraDeadEndFilling(int i) {
-        Region ruutu = (Region) ruudukko.getChildren().get(deadEndFillingPolku.hae(i));
-        ruutu.setStyle("-fx-background-color: gray");
+    private void drawDeadEndFilling(int i) {
+        Region tile = (Region) gridPane.getChildren().get(deadEndFillingPath.get(i));
+        tile.setStyle("-fx-background-color: gray");
     }
 
-    private void animoi(String algoritmi, int kierrosMaara) {
-        kierros = 0;
+    private void animate(String algorithm, int iterationCount) {
+        iteration = 0;
 
-        aikajana = new Timeline(new KeyFrame(Duration.millis(25), (ActionEvent event) -> {
-            if (algoritmi.equals("DFS")) {
-                piirraLabyrintti(kierros++);
-            } else if (algoritmi.equals("WallFollower")) {
-                piirraWallFollower(kierros++);
-            } else if (algoritmi.equals("DeadEndFilling")) {
-                piirraDeadEndFilling(kierros++);
+        timeline = new Timeline(new KeyFrame(Duration.millis(25), (ActionEvent event) -> {
+            if (algorithm.equals("DFS")) {
+                drawMaze(iteration++);
+            } else if (algorithm.equals("WallFollower")) {
+                drawWallFollower(iteration++);
+            } else if (algorithm.equals("DeadEndFilling")) {
+                drawDeadEndFilling(iteration++);
             }
         }));
-        aikajana.setCycleCount(kierrosMaara);
-        aikajana.play();
-        if (algoritmi.equals("DFS")) aikajana.setOnFinished(event -> alustaVarit());
-    }
 
-    @Override
-    public void start(Stage ikkuna) {
-        this.ikkuna = ikkuna;
+        timeline.setCycleCount(iterationCount);
+        timeline.play();
 
-        ikkuna.setScene(new Scene(luoPaanakyma(10, 58)));
-        ikkuna.setTitle("LABYRINTIN RATKAISIJA");
-        ikkuna.setResizable(false);
-        ikkuna.show();
+        if (algorithm.equals("DFS")) {
+            timeline.setOnFinished(event -> initializeColors());
+        }
     }
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    @Override
+    public void start(Stage stage) {
+        window = stage;
+
+        stage.setResizable(false);
+        stage.setScene(new Scene(createMainView(10, 58)));
+        stage.setTitle("Maze Solver");
+        stage.show();
     }
 }

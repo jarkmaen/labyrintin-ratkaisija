@@ -1,100 +1,105 @@
 package mazesolver.logic;
 
-import mazesolver.util.List;
+import mazesolver.util.ArrayList;
 
 /**
- * Dead-end filling algoritmi
+ * Class responsible for the dead-end filling algorithm
  */
 public class DeadEndFilling {
 
-    private List<List<Integer>> verkko;
-    private List<Integer> polku;
-    boolean suljettu[];
+    private ArrayList<ArrayList<Integer>> graph;
+    private ArrayList<Integer> path;
+    private boolean visited[];
     private int n;
 
-    public DeadEndFilling(List<List<Integer>> verkko, int n) {
-        this.verkko = verkko;
+    public DeadEndFilling(ArrayList<ArrayList<Integer>> graph, int n) {
+        this.graph = graph;
         this.n = n;
     }
 
-    public void ratkaise() {
-        List<Integer> umpikujat = new List<>();
-        suljettu = new boolean[n * n];
-        polku = new List<>();
-        int maali = n * n - 1;
+    /**
+     * Counts the number of visited neighbors for a node
+     */
+    private int countVisitedNeighbors(int node) {
+        int visitedNeighbors = 0;
 
-        // Etsitään umpikujat
-        for (int i = 0; i < verkko.koko(); i++) {
-            // Jos solmulla on vain yksi naapuri se on umpikuja
-            if (verkko.hae(i).koko() == 1 && i != 0 && i != maali) {
-                umpikujat.lisaa(i);
-                suljettu[i] = true;
-                polku.lisaa(i);
+        for (int i = 0; i < graph.get(node).size(); i++) {
+            if (visited[graph.get(node).get(i)]) {
+                visitedNeighbors++;
             }
         }
 
-        // Käydään umpikujat läpi
-        for (int i = 0; i < umpikujat.koko(); i++) {
-            int solmu = verkko.hae(umpikujat.hae(i)).hae(0);
-
-            // Liikutaan umpikujasta eteenpäin kunnes tulee risteys vastaan tai
-            // seuraava vapaa solmu on aloitus/maali solmu
-            while (true) {
-                if (solmu == 0 || solmu == maali || suljettu[solmu]) break;
-
-                int suljettujaNaapureita = laskeSuljetutNaapurit(solmu);
-                int koko = verkko.hae(solmu).koko();
-                
-                if (koko - suljettujaNaapureita == 0) {
-                    suljettu[solmu] = true;
-                    polku.lisaa(solmu);
-                    break;
-                }
-                
-                if (koko - suljettujaNaapureita == 1) {
-                    int seuraavaSolmu = etsiSeuraavaSolmu(solmu);
-                    solmu = seuraavaSolmu;
-                }
-                
-                if (koko - suljettujaNaapureita > 1) {
-                    break;
-                }
-            }
-        }
+        return visitedNeighbors;
     }
 
     /**
-     * Lasketaan solmun suljettujen naapurien määrä
+     * Iterates through the node's neighbors and returns the next unvisited node
      */
-    private int laskeSuljetutNaapurit(int solmu) {
-        int suljettujaNaapureita = 0;
+    private int findNextNode(int node) {
+        int nextNode = -1;
 
-        for (int i = 0; i < verkko.hae(solmu).koko(); i++) {
-            if (suljettu[verkko.hae(solmu).hae(i)]) suljettujaNaapureita++;
-        }
-
-        return suljettujaNaapureita;
-    }
-
-    /**
-     * Käydään solmun naapurit läpi ja palautetaan seuraava vapaa solmu
-     */
-    private int etsiSeuraavaSolmu(int solmu) {
-        int seuraavaSolmu = 0;
-
-        for (int i = 0; i < verkko.hae(solmu).koko(); i++) {
-            if (!suljettu[verkko.hae(solmu).hae(i)]) {
-                seuraavaSolmu = verkko.hae(solmu).hae(i);
-                suljettu[solmu] = true;
-                polku.lisaa(solmu);
+        for (int i = 0; i < graph.get(node).size(); i++) {
+            if (!visited[graph.get(node).get(i)]) {
+                nextNode = graph.get(node).get(i);
+                path.add(node);
+                visited[node] = true;
                 break;
             }
         }
 
-        return seuraavaSolmu;
+        return nextNode;
     }
 
-    public List<Integer> haePolku() {
-        return this.polku;
+    public void solve() {
+        ArrayList<Integer> deadEnds = new ArrayList<>();
+        path = new ArrayList<>();
+        visited = new boolean[n * n];
+
+        int start = 0; // (0, 0)
+        int end = n * n - 1; // (n-1, n-1)
+
+        // Search for dead ends
+        for (int i = 0; i < graph.size(); i++) {
+            // If the node has only one neighbor, it's a dead end
+            if (graph.get(i).size() == 1 && i != start && i != end) {
+                deadEnds.add(i);
+                path.add(i);
+                visited[i] = true;
+            }
+        }
+
+        // Process the dead ends
+        for (int i = 0; i < deadEnds.size(); i++) {
+            int node = graph.get(deadEnds.get(i)).get(0);
+
+            // Move forward from the dead end until a junction is encountered or the next
+            // node is the start/end node
+            while (true) {
+                if (node == start || node == end || visited[node]) {
+                    break;
+                }
+
+                int neighbors = graph.get(node).size();
+                int visitedNeighbors = countVisitedNeighbors(node);
+
+                if (neighbors - visitedNeighbors == 0) {
+                    // If all neighbors are visited, this node is now a dead end
+                    path.add(node);
+                    visited[node] = true;
+                    break;
+                } else if (neighbors - visitedNeighbors == 1) {
+                    // If exactly one neighbor is unvisited, move forward to that neighbor
+                    int nextNode = findNextNode(node);
+                    node = nextNode;
+                } else if (neighbors - visitedNeighbors > 1) {
+                    // If more than one neighbor is unvisited, we've reached a junction
+                    break;
+                }
+            }
+        }
+    }
+
+    public ArrayList<Integer> getPath() {
+        return path;
     }
 }

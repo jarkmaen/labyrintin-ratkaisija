@@ -1,38 +1,57 @@
 package mazesolver.logic;
 
-import mazesolver.util.List;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import mazesolver.util.ArrayList;
 
 public class WallFollowerTest {
 
-    Maze labyrintti;
-    int n;
+    private ArrayList<ArrayList<Integer>> graph;
+    private ArrayList<Integer> path;
+    private Maze maze;
+    private WallFollower wallFollower;
+    private int n;
 
     @Before
-    public void setup() {
-        n = 50;
-        labyrintti = new Maze(n);
-        labyrintti.luoLabyrintti();
+    public void setUp() {
+        n = 20;
+
+        maze = new Maze(n);
+        maze.generateMaze();
+
+        graph = maze.getGraph();
+        wallFollower = new WallFollower(graph, n);
+        wallFollower.solve();
+
+        path = wallFollower.getPath();
     }
 
     @Test
-    public void algoritmiRatkaiseeLabyrintin() {
-        WallFollower wallFollower = new WallFollower(labyrintti.haeVerkko(), n);
-        wallFollower.ratkaise();
-        List<Integer> polku = wallFollower.haePolku();
-        assertTrue(polku.hae(polku.koko() - 1) == n * n - 1);
+    public void wallFollowerFindsPathFromStartToEnd() {
+        int start = 0;
+        int end = n * n - 1;
+        assertEquals(start, (int) path.get(0));
+        assertEquals(end, (int) path.get(path.size() - 1));
     }
-    
+
     @Test
-    public void suuntaPalauttaaOikeatSuunnat() {
-        WallFollower wallFollower = new WallFollower(labyrintti.haeVerkko(), n);
-        boolean p = false, i = false, e = false, l = false;
-        if (wallFollower.suunta(4, 1).equals("P")) p = true;
-        if (wallFollower.suunta(4, 5).equals("I")) i = true;
-        if (wallFollower.suunta(4, 7).equals("E")) e = true;
-        if (wallFollower.suunta(4, 3).equals("L")) l = true;
-        assertTrue(p && i && e && l);
+    public void wallFollowerPathIsContinuous() {
+        for (int i = 1; i < path.size(); i++) {
+            boolean isNeighbor = false;
+            int previous = path.get(i - 1);
+            int current = path.get(i);
+
+            for (int j = 0; j < graph.get(previous).size(); j++) {
+                if (graph.get(previous).get(j) == current) {
+                    isNeighbor = true;
+                    break;
+                }
+            }
+
+            assertTrue(isNeighbor);
+        }
     }
 }

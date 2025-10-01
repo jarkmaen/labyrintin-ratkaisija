@@ -1,49 +1,77 @@
 package mazesolver.logic;
 
-import mazesolver.util.List;
-import mazesolver.util.Stack;
-import java.util.Random;
-import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
+import mazesolver.util.ArrayList;
+import mazesolver.util.Pair;
+import mazesolver.util.Stack;
 
 public class MazeTest {
 
-    List<List<Integer>> verkko;
-    Maze labyrintti;
-    int n;
-
-    @Before
-    public void setup() {
-        Random random = new Random();
-        n = random.nextInt(98) + 2;
-        labyrintti = new Maze(n);
-        labyrintti.luoLabyrintti();
-        verkko = labyrintti.haeVerkko();
+    @Test
+    public void mazeGraphHasCorrectNumberOfNodes() {
+        Maze maze = new Maze(10);
+        maze.generateMaze();
+        assertEquals(100, maze.getGraph().size());
     }
 
     @Test
-    public void labyrintinPolkuOnOikeanKokoinen() {
-        assertTrue(labyrintti.haePolku().koko() == 2 * n * n - 1);
-    }
+    public void mazeHasPathFromStartToEnd() {
+        int n = 100;
+        Maze maze = new Maze(n);
+        maze.generateMaze();
 
-    @Test
-    public void generoituLabyrinttiVoidaanRatkaista() {
-        boolean[] vierailtu = new boolean[n * n];
-        Stack<Integer> pino = new Stack<>();
-        pino.lisays(0);
-        vierailtu[0] = true;
-        while (!pino.onkoTyhja()) {
-            int solmu = pino.kurkistus();
-            pino.poisto();
-            for (int i = 0; i < verkko.hae(solmu).koko(); i++) {
-                int seuraavaSolmu = verkko.hae(solmu).hae(i);
-                if (!vierailtu[seuraavaSolmu]) {
-                    pino.lisays(seuraavaSolmu);
-                    vierailtu[seuraavaSolmu] = true;
+        ArrayList<ArrayList<Integer>> graph = maze.getGraph();
+        Stack<Integer> stack = new Stack<>();
+        boolean[] visited = new boolean[n * n];
+
+        int start = 0; // (0, 0)
+        int end = n * n - 1; // (n-1, n-1)
+
+        stack.push(start);
+        visited[start] = true;
+
+        while (!stack.empty()) {
+            int node = stack.pop();
+
+            for (int i = 0; i < graph.get(node).size(); i++) {
+                int next = graph.get(node).get(i);
+
+                if (!visited[next]) {
+                    stack.push(next);
+                    visited[next] = true;
                 }
             }
         }
-        assertTrue(vierailtu[n * n - 1]);
+
+        assertEquals(true, visited[end]);
+    }
+
+    @Test
+    public void mazePathVisitsAllCells() {
+        int n = 5;
+        Maze maze = new Maze(n);
+        maze.generateMaze();
+
+        ArrayList<Pair<Integer, Integer>> path = maze.getPath();
+        boolean[][] visited = new boolean[n][n];
+
+        for (int i = 0; i < path.size(); i++) {
+            Pair<Integer, Integer> cell = path.get(i);
+            visited[cell.getKey()][cell.getValue()] = true;
+        }
+
+        int count = 0;
+
+        for (int x = 0; x < n; x++) {
+            for (int y = 0; y < n; y++) {
+                if (visited[x][y]) {
+                    count++;
+                }
+            }
+        }
+
+        assertEquals(n * n, count);
     }
 }

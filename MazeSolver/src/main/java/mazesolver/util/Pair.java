@@ -1,25 +1,26 @@
 package mazesolver.util;
 
 /**
- * Parirakenne
- * @param <K> K - Tyyppiparametri
- * @param <V> V - Tyyppiparametri
+ * Basic key-value data structure
+ * 
+ * @param <K> key type
+ * @param <V> value type
  */
 public class Pair<K, V> {
 
-    private K avain;
-    private V arvo;
+    private K key;
+    private V value;
 
-    public Pair(K avain, V arvo) {
-        this.avain = avain;
-        this.arvo = arvo;
+    public Pair(K key, V value) {
+        this.key = key;
+        this.value = value;
     }
-    
-    public K haeAvain() {
-        return avain;
+
+    public K getKey() {
+        return key;
     }
-    
-    public V haeArvo() {
-        return arvo;
+
+    public V getValue() {
+        return value;
     }
 }

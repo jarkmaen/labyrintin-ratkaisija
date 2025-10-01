@@ -1,31 +1,35 @@
 package mazesolver.util;
 
 /**
- * Näennäissatunnaislukugeneraattori
- * https://en.wikipedia.org/wiki/Linear_congruential_generator
+ * Efficient Linear Congruential Generator (LCG) implementation
+ * LCG formula: X(n+1) = (a * X(n) + c) mod m
  */
 public class RandomNumberGenerator {
 
-    private final long modulus = 281474976710656L;
-    private final long multiplier = 25214903917L;
-    private final long increment = 11;
-    private final long seed = System.currentTimeMillis();
-    
-    private List<Long> numerot;
+    private static final long INCREMENT = 11;
+    private static final long MODULUS = 281474976710656L;
+    private static final long MULTIPLIER = 25214903917L;
+
+    private long seed;
 
     public RandomNumberGenerator() {
-        this.numerot = new List<>();
-        numerot.lisaa(seed);
+        seed = System.currentTimeMillis() & (MODULUS - 1);
     }
-    
+
     /**
-     * Generoi satunnaisen luvun 0...yläraja-1 väliltä
-     * @param ylaraja - Satunnaisenluvun yläraja
+     * Generates the next pseudorandom number in the range [0, max-1]
+     * 
+     * @param max the upper bound (exclusive)
      */
-    public int generoi(int ylaraja) {
-        long luku = (multiplier * numerot.hae(numerot.koko() - 1) + increment) % modulus;
-        numerot.lisaa(luku);
-        long satunnaisluku = luku % ylaraja;
-        return (int) (satunnaisluku < 0 ? -satunnaisluku : satunnaisluku);
+    public int generate(int max) {
+        long nextX = (MULTIPLIER * seed + INCREMENT) % MODULUS;
+        long scaled = nextX % max;
+        seed = nextX;
+
+        if (scaled < 0) {
+            scaled += max;
+        }
+
+        return (int) scaled;
     }
 }
