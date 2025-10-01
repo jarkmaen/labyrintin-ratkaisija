@@ -1,2 +1,3 @@
-/MazeSolver/target/
-/MazeSolver/nbproject/
+.vscode/
+/mazesolver/dependency-reduced-pom.xml
+/mazesolver/target/
