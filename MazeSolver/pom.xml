@@ -77,7 +77,7 @@
                 <configuration>
                     <excludes>
                         <exclude>mazesolver/ui/*</exclude>
-                        <exclude>mazesolver/util/PerformanceTest.java</exclude>
+                        <exclude>mazesolver/util/PerformanceTest*</exclude>
                     </excludes>
                 </configuration>
                 <executions>
