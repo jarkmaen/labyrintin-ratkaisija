@@ -6,6 +6,8 @@ A Java application for generating and solving mazes using classic pathfinding al
 
 A runnable .jar file can be downloaded from the [releases](https://github.com/jarkmaen/maze-solver/releases/tag/v1.0.0) page.
 
+![Maze solver demo](documentation/images/maze_solver_demo.gif)
+
 ## Documentation
 
 [Architecture](documentation/architecture.md)
